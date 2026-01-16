@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Wireless Headphones",
+    "price": 199,
+    "category": "Electronics",
+    "desc": "Noise-cancelling over-ear headphones."
+  },
+  {
+    "id": 2,
+    "name": "Gaming Mouse",
+    "price": 45,
+    "category": "Electronics",
+    "desc": "High-precision optical sensor mouse."
+  },
+  {
+    "id": 3,
+    "name": "Leather Jacket",
+    "price": 550,
+    "category": "Apparel",
+    "desc": "Genuine vintage-style brown leather."
+  },
+  {
+    "id": 4,
+    "name": "Smart Watch",
+    "price": 299,
+    "category": "Electronics",
+    "desc": "Water-resistant with heart rate monitor."
+  },
+  {
+    "id": 5,
+    "name": "Running Shoes",
+    "price": 120,
+    "category": "Apparel",
+    "desc": "Lightweight breathable mesh sneakers."
+  }
+]

@@ -1,0 +1,146 @@
+.container1 {
+  background: #34495e;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 600px;
+  text-align: center;
+}
+.quote-display {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #f1c40f;
+}
+.quote-input {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  border: none;
+  resize: none;
+}
+.stats {
+  margin: 20px 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+#reset-btn {
+  padding: 10px 20px;
+  cursor: pointer;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+.container2 {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+h1 {
+  color: #333;
+}
+.location-selector {
+  margin-bottom: 20px;
+}
+select,
+button {
+  padding: 10px;
+  font-size: 16px;
+  margin: 5px;
+}
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.aqi-result {
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 20px;
+  background-color: #e9e9e9;
+}
+/* Dynamic status colors added via JavaScript */
+.status-good {
+  background-color: #1abc9c;
+  color: white;
+}
+.status-moderate {
+  background-color: #f1c40f;
+  color: black;
+}
+.status-unhealthy-sensitive {
+  background-color: #e67e22;
+  color: white;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 320px;
+}
+input[type="text"] {
+  flex-grow: 1;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  outline-offset: 2px;
+}
+button {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2ea44f;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+button:hover:not(:disabled) {
+  background-color: #22863a;
+}
+button:disabled {
+  background-color: #94d3a2;
+  cursor: not-allowed;
+}
+#result {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+#profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e1e4e8;
+}
+.info {
+  font-size: 16px;
+  color: #586069;
+}
+.info strong {
+  color: #24292e;
+}
+.error {
+  color: #d73a49;
+  font-weight: bold;
+  font-size: 16px;
+}

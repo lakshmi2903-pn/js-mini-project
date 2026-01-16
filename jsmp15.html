@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS MiniProject Day 15</title>
+    <link rel="stylesheet" href="jsmp15.css" />
+  </head>
+  <body>
+    <h1>
+      Mini Project 1: User Registration Form with Validation & Error Handling
+    </h1>
+    <div class="form-container">
+      <h2>Create Account</h2>
+      <form id="registrationForm">
+        <div class="input-control">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Enter username" />
+          <small class="error-msg" id="userError"></small>
+        </div>
+
+        <div class="input-control">
+          <label>Email</label>
+          <input type="text" id="email" placeholder="Enter email" />
+          <small class="error-msg" id="emailError"></small>
+        </div>
+
+        <div class="input-control">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Min 6 characters" />
+          <small class="error-msg" id="passError"></small>
+        </div>
+
+        <button type="submit">Register</button>
+        <p id="successMsg" style="color: green; text-align: center"></p>
+      </form>
+    </div>
+    <script>
+      const form = document.getElementById("registrationForm");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Clear previous messages
+        document
+          .querySelectorAll(".error-msg")
+          .forEach((el) => (el.innerText = ""));
+        document.getElementById("successMsg").innerText = "";
+
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        try {
+          // 1. Validate Username
+          if (username === "") {
+            throw { id: "userError", msg: "Username is required" };
+          }
+
+          // 2. Validate Email
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (email === "") {
+            throw { id: "emailError", msg: "Email is required" };
+          } else if (!emailRegex.test(email)) {
+            throw { id: "emailError", msg: "Invalid email format" };
+          }
+
+          // 3. Validate Password
+          if (password.length < 6) {
+            throw {
+              id: "passError",
+              msg: "Password must be at least 6 characters",
+            };
+          }
+
+          // If no errors were thrown
+          document.getElementById("successMsg").innerText =
+            "Registration Successful!";
+          form.reset();
+        } catch (error) {
+          // Display the caught error in the specific small tag
+          const errorDisplay = document.getElementById(error.id);
+          if (errorDisplay) {
+            errorDisplay.innerText = error.msg;
+          } else {
+            console.error("Unknown Error:", error);
+          }
+        }
+      });
+    </script>
+    <hr />
+    <h1>Mini Project 2. API Response Logger</h1>
+    <div class="logger-container">
+      <h2>API Response Logger</h2>
+      <div class="controls">
+        <input
+          type="text"
+          id="apiURL"
+          placeholder="Enter API URL (e.g., api.dictionaryapi.dev)"
+        />
+        <button id="fetchBtn">Fetch & Log</button>
+      </div>
+
+      <div id="statusArea" class="status-area">Status: Awaiting input...</div>
+
+      <div class="log-section">
+        <h3>Local Storage Logs</h3>
+        <button id="clearLogsBtn">Clear Logs</button>
+        <ul id="logList">
+          <!-- Logs are injected here -->
+        </ul>
+      </div>
+    </div>
+    <script>
+      const apiURLInput = document.getElementById("apiURL");
+      const fetchBtn = document.getElementById("fetchBtn");
+      const statusArea = document.getElementById("statusArea");
+      const logList = document.getElementById("logList");
+      const clearLogsBtn = document.getElementById("clearLogsBtn");
+
+      const STORAGE_KEY = "apiLogs";
+
+      // Helper function to render logs from localStorage
+      function renderLogs() {
+        logList.innerHTML = "";
+        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        logs.forEach((log) => {
+          const li = document.createElement("li");
+          li.className = `log-item log-${log.type}`;
+          li.textContent = `${new Date(
+            log.timestamp
+          ).toLocaleTimeString()}: [${log.type.toUpperCase()}] ${log.message}`;
+          logList.appendChild(li);
+        });
+      }
+
+      // Function to add a new log entry
+      function addLog(type, message) {
+        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        logs.push({
+          type: type,
+          message: message,
+          timestamp: new Date().toISOString(),
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+        renderLogs();
+      }
+
+      async function handleApiFetch() {
+        const url = apiURLInput.value.trim();
+        if (!url) {
+          statusArea.textContent = "Status: Please enter a valid URL.";
+          return;
+        }
+
+        statusArea.textContent = "Status: Fetching...";
+
+        try {
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            // Treat non-OK HTTP status (e.g., 404 Not Found, 500 Server Error) as an error
+            const errorMsg = `HTTP Error: ${response.status} ${response.statusText} for URL ${url}`;
+            throw new Error(errorMsg);
+          }
+
+          // Assuming a successful JSON response
+          const data = await response.json();
+          const successMsg = `Success: Fetched data from ${url}. Data keys: ${Object.keys(
+            data
+          ).join(", ")}`;
+          statusArea.textContent = "Status: " + successMsg;
+          addLog("success", successMsg);
+        } catch (error) {
+          // Catches network errors (like CORS issues, offline) and our thrown HTTP error
+          const errorMsg = `Failure: ${error.message}`;
+          statusArea.textContent = "Status: " + errorMsg;
+          addLog("error", errorMsg);
+        }
+      }
+
+      // Event Listeners
+      fetchBtn.addEventListener("click", handleApiFetch);
+      clearLogsBtn.addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        renderLogs();
+        statusArea.textContent = "Status: Logs cleared.";
+      });
+
+      // Initial render when page loads
+      renderLogs();
+    </script>
+    <hr />
+    <h1>Mini Project 3: Calculator with Error Handling</h1>
+
+    <div class="calculator-grid">
+      <div class="output">
+        <div data-previous-operand class="previous-operand"></div>
+        <div data-current-operand class="current-operand">0</div>
+      </div>
+      <button data-all-clear class="span-two">AC</button>
+      <button data-delete>DEL</button>
+      <button data-operation>÷</button>
+      <button data-number>7</button>
+      <button data-number>8</button>
+      <button data-number>9</button>
+      <button data-operation>×</button>
+      <button data-number>4</button>
+      <button data-number>5</button>
+      <button data-number>6</button>
+      <button data-operation>+</button>
+      <button data-number>1</button>
+      <button data-number>2</button>
+      <button data-number>3</button>
+      <button data-operation>-</button>
+      <button data-number>.</button>
+      <button data-number>0</button>
+      <button data-equals class="span-two">=</button>
+    </div>
+    <script>
+      class Calculator {
+        constructor(previousOperandTextElement, currentOperandTextElement) {
+          this.previousOperandTextElement = previousOperandTextElement;
+          this.currentOperandTextElement = currentOperandTextElement;
+          this.clear();
+        }
+
+        clear() {
+          this.currentOperand = "0";
+          this.previousOperand = "";
+          this.operation = undefined;
+        }
+
+        delete() {
+          this.currentOperand =
+            this.currentOperand.toString().slice(0, -1) || "0";
+        }
+
+        appendNumber(number) {
+          if (number === "." && this.currentOperand.includes(".")) return;
+          if (this.currentOperand === "0" && number !== ".") {
+            this.currentOperand = number.toString();
+          } else {
+            this.currentOperand =
+              this.currentOperand.toString() + number.toString();
+          }
+        }
+
+        chooseOperation(operation) {
+          if (this.currentOperand === "") return;
+          if (this.previousOperand !== "") {
+            this.compute();
+          }
+          this.operation = operation;
+          this.previousOperand = this.currentOperand;
+          this.currentOperand = "";
+        }
+
+        compute() {
+          let computation;
+          const prev = parseFloat(this.previousOperand);
+          const current = parseFloat(this.currentOperand);
+
+          // Basic validation before computation
+          if (isNaN(prev) || isNaN(current)) return;
+
+          switch (this.operation) {
+            case "+":
+              computation = prev + current;
+              break;
+            case "-":
+              computation = prev - current;
+              break;
+            case "×":
+              computation = prev * current;
+              break;
+            case "÷":
+              // *** ERROR HANDLING FOR DIVISION BY ZERO ***
+              if (current === 0) {
+                this.currentOperand = "Error: Div by Zero";
+                this.previousOperand = "";
+                this.operation = undefined;
+                return;
+              }
+              computation = prev / current;
+              break;
+            default:
+              return;
+          }
+
+          this.currentOperand = computation;
+          this.operation = undefined;
+          this.previousOperand = "";
+        }
+
+        updateDisplay() {
+          this.currentOperandTextElement.innerText = this.currentOperand;
+          if (this.operation != null) {
+            this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
+          } else {
+            this.previousOperandTextElement.innerText = "";
+          }
+        }
+      }
+
+      // Select all necessary DOM elements
+      const numberButtons = document.querySelectorAll("[data-number]");
+      const operationButtons = document.querySelectorAll("[data-operation]");
+      const equalsButton = document.querySelector("[data-equals]");
+      const deleteButton = document.querySelector("[data-delete]");
+      const allClearButton = document.querySelector("[data-all-clear]");
+      const previousOperandTextElement = document.querySelector(
+        "[data-previous-operand]"
+      );
+      const currentOperandTextElement = document.querySelector(
+        "[data-current-operand]"
+      );
+
+      const calculator = new Calculator(
+        previousOperandTextElement,
+        currentOperandTextElement
+      );
+
+      // Event listeners for all buttons
+      numberButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          calculator.appendNumber(button.innerText);
+          calculator.updateDisplay();
+        });
+      });
+
+      operationButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          calculator.chooseOperation(button.innerText);
+          calculator.updateDisplay();
+        });
+      });
+
+      equalsButton.addEventListener("click", (button) => {
+        calculator.compute();
+        calculator.updateDisplay();
+      });
+
+      allClearButton.addEventListener("click", (button) => {
+        calculator.clear();
+        calculator.updateDisplay();
+      });
+
+      deleteButton.addEventListener("click", (button) => {
+        calculator.delete();
+        calculator.updateDisplay();
+      });
+    </script>
+    <hr />
+    <h1>Mini Project 4: Debugging Dashboard</h1>
+    <div class="dashboard-container">
+      <h1>Debugging Dashboard</h1>
+
+      <div class="controls">
+        <button id="logInfoBtn1">Log Info</button>
+        <button id="logErrorBtn1">Simulate Error</button>
+        <button id="throwErrorBtn1">Throw JS Error</button>
+        <button id="clearLogsBtn1" class="clear-btn1">Clear Dashboard</button>
+      </div>
+
+      <div class="log-area">
+        <h3>Recent Logs</h3>
+        <ul id="logList1">
+          <!-- Logs injected here -->
+        </ul>
+      </div>
+    </div>
+    <script>
+      const logList1 = document.getElementById("logList1");
+      const STORAGE_KEY1 = "debugLogs";
+
+      // Helper to get logs from storage
+      const getLogs = () =>
+        JSON.parse(localStorage.getItem(STORAGE_KEY1)) || [];
+
+      const saveLogs = (logs) =>
+        localStorage.setItem(STORAGE_KEY1, JSON.stringify(logs));
+
+      function renderLogs() {
+        logList1.innerHTML = "";
+        getLogs().forEach((log) => {
+          const li = document.createElement("li");
+          li.className = `log-item log-${log.type}`;
+          li.textContent = `[${new Date(log.timestamp).toLocaleTimeString()}] ${
+            log.message
+          }`;
+          logList1.appendChild(li);
+        });
+      }
+
+      function addLog(type, message) {
+        const logs = getLogs();
+        logs.push({
+          type: type,
+          message: message,
+          timestamp: new Date().toISOString(),
+        });
+        saveLogs(logs);
+        renderLogs();
+      }
+
+      window.onerror = function (message, source, lineno, colno, error) {
+        addLog(
+          "EXCEPTION",
+          `Uncaught Error: ${message} at ${source}:${lineno}`
+        );
+        return true;
+      };
+
+      const originalConsoleError = console.error;
+      console.error = function (message, ...optionalParams) {
+        originalConsoleError.apply(console, arguments);
+        addLog(
+          "ERROR",
+          message +
+            (optionalParams.length ? " " + optionalParams.join(" ") : "")
+        );
+      };
+
+      const originalConsoleLog = console.log;
+      console.log = function (message, ...optionalParams) {
+        originalConsoleLog.apply(console, arguments);
+        if (typeof message === "string") {
+          addLog("INFO", message);
+        }
+      };
+
+      document.getElementById("logInfoBtn1").addEventListener("click", () => {
+        console.log("User clicked the info button.");
+      });
+
+      document.getElementById("logErrorBtn1").addEventListener("click", () => {
+        console.error("A simulated API failure occurred.");
+      });
+
+      document
+        .getElementById("throwErrorBtn1")
+        .addEventListener("click", () => {
+          nonExistentFunctionCall();
+        });
+
+      document.getElementById("clearLogsBtn1").addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY1);
+        renderLogs();
+      });
+
+      renderLogs();
+    </script>
+    <hr />
+    <h1>Mini Projects 5: Form Validator with Custom Errors</h1>
+    <div class="form-container1">
+      <h2>User Registration</h2>
+      <form id="registrationForm1">
+        <div class="input-control1">
+          <label>Name</label>
+          <input type="text" id="name1" placeholder="Enter full name" />
+          <small class="error-msg1" id="nameError1"></small>
+        </div>
+
+        <div class="input-control1">
+          <label>Age</label>
+          <input type="number" id="age1" placeholder="Must be 18-100" />
+          <small class="error-msg1" id="ageError1"></small>
+        </div>
+
+        <div class="input-control1">
+          <label>Email</label>
+          <input type="text" id="email1" placeholder="Enter valid email" />
+          <small class="error-msg1" id="emailError1"></small>
+        </div>
+
+        <div class="input-control">
+          <label>Password</label>
+          <input
+            type="password"
+            id="password1"
+            placeholder="Min 6 characters"
+          />
+          <small class="error-msg" id="passError1"></small>
+        </div>
+
+        <button type="submit">Register</button>
+        <p id="successMsg1" class="success-msg1"></p>
+      </form>
+    </div>
+    <script>
+      // 1. Define Custom Error Classes
+      class InvalidInputError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "InvalidInputError";
+        }
+      }
+      class InvalidAgeError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "InvalidAgeError";
+        }
+      }
+      class InvalidEmailError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "InvalidEmailError";
+        }
+      }
+      class WeakPasswordError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "WeakPasswordError";
+        }
+      }
+
+      const form1 = document.getElementById("registrationForm");
+
+      form1.addEventListener("submit", (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        try {
+          validateForm();
+          document.getElementById("successMsg").innerText =
+            "Registration Successful! Data submitted.";
+          form1.reset();
+        } catch (error) {
+          handleValidationError(error);
+        }
+      });
+
+      function validateForm() {
+        const name = document.getElementById("name1").value.trim();
+        const age = document.getElementById("age1").value.trim();
+        const email = document.getElementById("email1").value.trim();
+        const password = document.getElementById("password1").value.trim();
+
+        if (name === "") {
+          throw new InvalidInputError("Name is required");
+        }
+
+        const ageNum = parseInt(age, 10);
+        if (isNaN(ageNum) || ageNum < 18 || ageNum > 100) {
+          throw new InvalidAgeError("Age must be between 18 and 100");
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          throw new InvalidEmailError("Please enter a valid email format");
+        }
+
+        // Password validation
+        if (password.length < 6) {
+          throw new WeakPasswordError(
+            "Password must be at least 6 characters long"
+          );
+        }
+      }
+
+      function handleValidationError(error) {
+        // This function maps the custom error type to the specific DOM element ID
+        let errorElementId;
+        switch (error.name) {
+          case "InvalidInputError":
+            // Covers Name field
+            if (error.message.includes("Name")) errorElementId = "nameError";
+            break;
+          case "InvalidAgeError":
+            errorElementId = "ageError";
+            break;
+          case "InvalidEmailError":
+            errorElementId = "emailError";
+            break;
+          case "WeakPasswordError":
+            errorElementId = "passError";
+            break;
+          default:
+            console.error("An unexpected error occurred:", error);
+            return;
+        }
+
+        // Display the error message and highlight the input field
+        const errorElement = document.getElementById(errorElementId);
+        if (errorElement) {
+          errorElement.innerText = error.message;
+          // Also highlight the parent input control div with the 'error' class
+          errorElement.parentElement.classList.add("error");
+        }
+      }
+
+      function clearErrors() {
+        document
+          .querySelectorAll(".error-msg1")
+          .forEach((el) => (el.innerText = ""));
+        document
+          .querySelectorAll(".input-control1")
+          .forEach((el) => el.classList.remove("error"));
+        document.getElementById("successMsg1").innerText = "";
+      }
+    </script>
+  </body>
+</html>
